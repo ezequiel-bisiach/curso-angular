@@ -16,7 +16,14 @@ export class GifsService {
   private _searchHistory: string[] = [];
   private _gifsList: GifInterface[] = []
 
-  constructor() {}
+  constructor() {
+    this.cargarAlmacenamientoLocal();
+
+    if (this._searchHistory.length == 0)
+      return;
+
+    this.newSearch(this._searchHistory[0]);
+  }
 
   get searchHistory() {
     return [...this._searchHistory];
@@ -31,10 +38,7 @@ export class GifsService {
 
     const indexOfTag = this._searchHistory.indexOf(tag);
 
-    if (indexOfTag == 0)
-      return;
-
-    if (indexOfTag > 0)
+    if (indexOfTag >= 0)
       this._searchHistory.splice(indexOfTag, 1);
 
     this._searchHistory.unshift(tag);
@@ -49,5 +53,20 @@ export class GifsService {
              .subscribe((resp) => {
                 this._gifsList = resp.results;
               });
+
+    this.guardarAlmacenamientoLocal();
+  }
+
+  guardarAlmacenamientoLocal(): void {
+    localStorage.setItem('historial', JSON.stringify(this._searchHistory));
+  }
+
+  cargarAlmacenamientoLocal(): void {
+    const historial = localStorage.getItem('historial');
+
+    if (!historial)
+      return;
+
+    this._searchHistory = JSON.parse(historial!);
   }
 }

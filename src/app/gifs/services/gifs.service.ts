@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { GifResponseInterface } from '../interfaces/gif-response-interface';
-import { catchError, throwError } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { GifInterface } from '../interfaces/git-interface';
 
 @Injectable({
@@ -49,10 +49,10 @@ export class GifsService {
     //const params = new HttpParams().set('category', tag);
     const params = new HttpParams().set('name', tag);
 
-    this.http.get<GifResponseInterface>(this.rickAndMortyApi, { params })
-             .subscribe((resp) => {
-                this._gifsList = resp.results;
-              });
+    const sus = this.http.get<GifResponseInterface>(this.rickAndMortyApi, { params })
+                         .pipe(catchError(error => of({'results': []})));
+
+    sus.subscribe((resp) => { this._gifsList = resp.results; });
 
     this.guardarAlmacenamientoLocal();
   }
